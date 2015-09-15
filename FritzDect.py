@@ -152,5 +152,5 @@ if __name__ == "__main__":
         print("Toggle: " + str(dev.toggle()))
         print("Current Power: " + str(dev.getPower()) + "mW")
         print("Used Energy: " + str(dev.getEnergy()) + "Wh")
-        print("Temp: " + str(dev.getTemperature()) + 'C')
-        print("Temp Offset: " + str(dev.getOffset()))
+        print("Temp: " + str(dev.getTemperature()) + '°C')
+        print("Temp Offset: " + str(dev.getOffset()) + '°C')
