@@ -121,10 +121,23 @@ class FritzDevice:
         element = xml.find("./device[@identifier='" + self.ain[:5] + " " + self.ain[5:] + "']")
         if element is not None:
             temp = element.find('./temperature/celsius')
+            offset = element.find('./temperature/offset')
             if temp is not None:
                 temp = float(temp.text)
+                if offset is not None:
+                    temp += float(offset.text)
                 temp = temp / 10.0
                 return temp
+        return 0.0
+
+    def getOffset(self):
+        xml = self.fritzDect.getTreeResponse('getdevicelistinfos')
+        element = xml.find("./device[@identifier='" + self.ain[:5] + " " + self.ain[5:] + "']")
+        if element is not None:
+            offset = element.find('./temperature/offset')
+            if offset is not None:
+                offset = float(offset.text) / 10.0
+            return offset
         return 0.0
 
 if __name__ == "__main__":
@@ -140,3 +153,4 @@ if __name__ == "__main__":
         print("Current Power: " + str(dev.getPower()) + "mW")
         print("Used Energy: " + str(dev.getEnergy()) + "Wh")
         print("Temp: " + str(dev.getTemperature()) + 'C')
+        print("Temp Offset: " + str(dev.getOffset()))
