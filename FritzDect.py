@@ -30,7 +30,7 @@ from xml.etree.ElementTree import parse
 class FritzDect:
 
     username = 'ibutra'
-    password = 'DjWzBhzrsuRf'
+    password = 'OEoQllBKxzIrpugoGt'
     url = "http://192.168.178.1/"
     loginUrl = url + "login_sid.lua?"
     switchUrl = url + "webservices/homeautoswitch.lua?"
