@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FritzDECT Switcher</title>
+</head>
+<body>
+    <ul>
+        {% for device in devicelist %}
+            <li><a href='switch?ain={{ device.ain }}'> {{ device.getName() }} </a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -25,15 +25,18 @@
 import hashlib
 from urllib.request import urlopen
 from xml.etree.ElementTree import parse
+import json
 
 
-class FritzDect:
+class FritzDect(object):
 
-    username = 'ibutra'
-    password = 'pcXKIEKwrKoWOPhBynxfPTbLwMqYIEo'
-    url = "http://192.168.178.1/"
-    loginUrl = url + "login_sid.lua?"
-    switchUrl = url + "webservices/homeautoswitch.lua?"
+    def __init__(self):
+        config = json.load(open("config"))
+        self.username = config["username"]
+        self.password = config["password"]
+        self.url = config["url"]
+        self.loginUrl = self.url + "login_sid.lua?"
+        self.switchUrl = self.url + "webservices/homeautoswitch.lua?"
 
     def getSid(self):
         with urlopen(self.loginUrl) as response:
@@ -80,7 +83,7 @@ class FritzDect:
         return result.getroot()
 
 
-class FritzDevice:
+class FritzDevice(object):
 
     def __init__(self, ain, fritzDect):
         self.ain = ain

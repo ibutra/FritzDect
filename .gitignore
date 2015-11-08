@@ -56,5 +56,8 @@ docs/_build/
 # PyBuilder
 target/
 
-#credentials
-credentials
+#config
+config
+
+#pycharm
+.idea
