@@ -25,8 +25,14 @@ class FritzServer(object):
                 break
         if device is not None:
             device.toggle()
-        return self.index()
+        raise cherrypy.HTTPRedirect('/')
 
 
-
-cherrypy.quickstart(FritzServer())
+if __name__ == "__main__":
+    conf = {
+        '/public': {
+            'tools.staticdir.on': True,
+            'tools.staticdir.dir': './public'
+        }
+    }
+    cherrypy.quickstart(FritzServer())
