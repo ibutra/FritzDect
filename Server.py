@@ -1,7 +1,6 @@
 import cherrypy
 import FritzDect
 import jinja2
-from cherrypy.process.plugins import Daemonizer
 
 
 class FritzServer(object):
@@ -13,6 +12,7 @@ class FritzServer(object):
     @cherrypy.expose
     def index(self):
         devicelist = self.fritz.getDevices()
+
         page = self.env.get_template("index.html")
         return page.render(devicelist=devicelist)
 
@@ -30,14 +30,12 @@ class FritzServer(object):
 
 
 if __name__ == "__main__":
-    d = Daemonizer(cherrypy.engine)
-    d.subscribe()
     conf = {
         '/public': {
             'tools.staticdir.on': True,
-            'tools.staticdir.dir': './public'
+            'tools.staticdir.dir': '/Users/stefanrakel/Documents/Projects/FritzDECT/public'
         }
     }
-    cherrypy.config.update({'server.socket_host': '192.168.178.38',
-                            'server.socket_port': 80})
-    cherrypy.quickstart(FritzServer())
+    cherrypy.config.update({'server.socket_host': '127.0.0.1',
+                            'server.socket_port': 8080})
+    cherrypy.quickstart(FritzServer(),config=conf)
