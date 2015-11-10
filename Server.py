@@ -1,6 +1,7 @@
 import cherrypy
 import FritzDect
 import jinja2
+from cherrypy.process.plugins import Daemonizer
 
 
 class FritzServer(object):
@@ -29,10 +30,14 @@ class FritzServer(object):
 
 
 if __name__ == "__main__":
+    d = Daemonizer(cherrypy.engine)
+    d.subscribe()
     conf = {
         '/public': {
             'tools.staticdir.on': True,
             'tools.staticdir.dir': './public'
         }
     }
+    cherrypy.config.update({'server.socket_host': '192.168.178.38',
+                            'server.socket_port': '80'})
     cherrypy.quickstart(FritzServer())

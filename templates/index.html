@@ -5,10 +5,8 @@
     <title>FritzDECT Switcher</title>
 </head>
 <body>
-    <ul>
-        {% for device in devicelist %}
-            <li><a href='switch?ain={{ device.ain }}'> {{ device.getName() }} </a></li>
-        {% endfor %}
-    </ul>
+    {% for device in devicelist %}
+        <div><a href='switch?ain={{ device.ain }}'> {{ device.getName() }} </a></div>
+    {% endfor %}
 </body>
 </html>
