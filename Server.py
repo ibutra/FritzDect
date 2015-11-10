@@ -39,5 +39,5 @@ if __name__ == "__main__":
         }
     }
     cherrypy.config.update({'server.socket_host': '192.168.178.38',
-                            'server.socket_port': '80'})
+                            'server.socket_port': 80})
     cherrypy.quickstart(FritzServer())
