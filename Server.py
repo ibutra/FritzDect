@@ -1,6 +1,7 @@
 import cherrypy
 import FritzDect
 import jinja2
+import json
 
 
 class FritzServer(object):
@@ -8,25 +9,25 @@ class FritzServer(object):
     def __init__(self):
         self.fritz = FritzDect.FritzDect()
         self.env = jinja2.Environment(loader=jinja2.PackageLoader("FritzDect","templates"))
+        self.devicelist = self.fritz.getDevices()
+        cherrypy.process.plugins.BackgroundTask(60, self.update_device_list)
 
     @cherrypy.expose
     def index(self):
-        devicelist = self.fritz.getDevices()
-
         page = self.env.get_template("index.html")
-        return page.render(devicelist=devicelist)
+        return page.render(devicelist=self.devicelist)
 
     @cherrypy.expose
     def switch(self, ain):
-        deviceList = self.fritz.getDevices()
-        device = None
-        for dev in deviceList:
-            if dev.ain == ain:
-                device = dev
-                break
-        if device is not None:
+        try:
+            device = next(dev for dev in self.devicelist if dev.ain == ain)
             device.toggle()
+        except ValueError:
+            pass
         raise cherrypy.HTTPRedirect('/')
+
+    def update_device_list(self):
+        self.devicelist = self.fritz.getDevices()
 
 
 if __name__ == "__main__":
@@ -36,6 +37,11 @@ if __name__ == "__main__":
             'tools.staticdir.dir': '/Users/stefanrakel/Documents/Projects/FritzDECT/public'
         }
     }
-    cherrypy.config.update({'server.socket_host': '127.0.0.1',
+    try:
+        config = json.load(open("config"))
+        cherrypy.config.update({'server.socket_host': config["server_url"],
+                            'server.socket_port': config["server_port"]})
+    except json.JSONDecodeError:
+        cherrypy.config.update({'server.socket_host': '127.0.0.1',
                             'server.socket_port': 8080})
     cherrypy.quickstart(FritzServer(),config=conf)
