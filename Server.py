@@ -2,6 +2,7 @@ import cherrypy
 import FritzDect
 import jinja2
 import json
+from threading import Thread
 
 
 class FritzServer(object):
@@ -21,7 +22,8 @@ class FritzServer(object):
     def switch(self, ain):
         try:
             device = next(dev for dev in self.devicelist if dev.ain == ain)
-            device.toggle()
+            thread = Thread(target=device.toggle)
+            thread.start()
         except ValueError:
             pass
         raise cherrypy.HTTPRedirect('/')
