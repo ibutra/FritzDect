@@ -10,7 +10,7 @@ class FritzServer(object):
     def __init__(self):
         self.fritz = FritzDect.FritzDect()
         self.env = jinja2.Environment(loader=jinja2.PackageLoader("FritzDect","templates"))
-        self.devicelist = self.fritz.getDevices()
+        self.update_device_list()
         cherrypy.process.plugins.BackgroundTask(60, self.update_device_list)
 
     @cherrypy.expose
@@ -30,6 +30,8 @@ class FritzServer(object):
 
     def update_device_list(self):
         self.devicelist = self.fritz.getDevices()
+        for device in self.devicelist:
+            device.name = device.getName() #hacky but oh well
 
 
 if __name__ == "__main__":
