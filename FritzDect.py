@@ -26,12 +26,14 @@ import hashlib
 from urllib.request import urlopen
 from xml.etree.ElementTree import parse
 import json
+import sys, getopt
 
 
 class FritzDect(object):
 
-    def __init__(self):
-        config = json.load(open("config"))
+    def __init__(self, config=None):
+        if config is None:
+            config = json.load(open("config"))
         self.username = config["username"]
         self.password = config["password"]
         self.url = config["url"]
@@ -144,16 +146,38 @@ class FritzDevice(object):
         return 0.0
 
 if __name__ == "__main__":
-    print("Testing...")
     fritz = FritzDect()
-    devList = fritz.getDevices()
-    for dev in devList:
-        print("Name: " + dev.getName())
-        print("State: " + str(dev.getState()))
-        print("Turning On: " + str(dev.set(True)))
-        print("Turning Off: " + str(dev.off()))
-        print("Toggle: " + str(dev.toggle()))
-        print("Current Power: " + str(dev.getPower()) + "mW")
-        print("Used Energy: " + str(dev.getEnergy()) + "Wh")
-        print("Temp: " + str(dev.getTemperature()) + '°C')
-        print("Temp Offset: " + str(dev.getOffset()) + '°C')
+
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "a:t", ["ain=", "toggle", "turnoff", "turnon", "test"])
+    except getopt.GetoptError:
+        print("Unrecognized arguments")
+
+    ain = None
+    operation = None
+    for opt, arg in opts:
+        if opt == '--test':
+            print("Testing...")
+            devList = fritz.getDevices()
+            for dev in devList:
+                print("Name: " + dev.getName())
+                print("State: " + str(dev.getState()))
+                print("Turning On: " + str(dev.set(True)))
+                print("Turning Off: " + str(dev.off()))
+                print("Toggle: " + str(dev.toggle()))
+                print("Current Power: " + str(dev.getPower()) + "mW")
+                print("Used Energy: " + str(dev.getEnergy()) + "Wh")
+                print("Temp: " + str(dev.getTemperature()) + '°C')
+                print("Temp Offset: " + str(dev.getOffset()) + '°C')
+                sys.exit(0)
+        elif opt in ("-a", "--ain"):
+            ain = arg
+        elif opt in ("-t", "--toggle"):
+            operation = FritzDevice.toggle
+        elif opt == "--turnoff":
+            operation = FritzDevice.off
+        elif opt == "--turnon":
+            operation = FritzDevice.on
+    if ain and operation:
+        device = FritzDevice(ain, fritz)
+        operation(device)
