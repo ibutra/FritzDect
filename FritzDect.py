@@ -153,6 +153,9 @@ if __name__ == "__main__":
 
     ain = None
     operation = None
+    username = None
+    password = None
+    link = None
     for opt, arg in opts:
         if opt == '--test':
             print("Testing...")
