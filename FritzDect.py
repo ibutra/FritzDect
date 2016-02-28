@@ -146,10 +146,8 @@ class FritzDevice(object):
         return 0.0
 
 if __name__ == "__main__":
-    fritz = FritzDect()
-
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "a:t", ["ain=", "toggle", "turnoff", "turnon", "test"])
+        opts, args = getopt.getopt(sys.argv[1:], "a:tu:p:l:", ["ain=", "toggle", "turnoff", "turnon", "test"])
     except getopt.GetoptError:
         print("Unrecognized arguments")
 
@@ -158,6 +156,7 @@ if __name__ == "__main__":
     for opt, arg in opts:
         if opt == '--test':
             print("Testing...")
+            fritz = FritzDect()
             devList = fritz.getDevices()
             for dev in devList:
                 print("Name: " + dev.getName())
@@ -178,6 +177,19 @@ if __name__ == "__main__":
             operation = FritzDevice.off
         elif opt == "--turnon":
             operation = FritzDevice.on
+        elif opt == "-u":
+            username = arg
+        elif opt == "-p":
+            password = arg
+        elif opt == "-l":
+            link = arg
+    if password and username and link:
+        config = {"username": username,
+                  "password": password,
+                  "url": link}
+        fritz = FritzDect(config)
+    else:
+        fritz = FritzDect()
     if ain and operation:
         device = FritzDevice(ain, fritz)
         operation(device)
