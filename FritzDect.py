@@ -26,13 +26,15 @@ import hashlib
 from urllib.request import urlopen
 from xml.etree.ElementTree import parse
 import json
-import sys, getopt
-
+import sys
+import getopt
 
 class FritzDect(object):
 
-    def __init__(self, config=None):
-        if config is None:
+    def __init__(self, configpath=None):
+        if configpath:
+            config = json.load(open(configpath))
+        else:
             config = json.load(open("config"))
         self.username = config["username"]
         self.password = config["password"]
@@ -147,15 +149,13 @@ class FritzDevice(object):
 
 if __name__ == "__main__":
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "a:tu:p:l:", ["ain=", "toggle", "turnoff", "turnon", "test"])
+        opts, args = getopt.getopt(sys.argv[1:], "a:tc:", ["ain=", "toggle", "turnoff", "turnon", "test"])
     except getopt.GetoptError:
         print("Unrecognized arguments")
 
     ain = None
     operation = None
-    username = None
-    password = None
-    link = None
+    configpath = None
     for opt, arg in opts:
         if opt == '--test':
             print("Testing...")
@@ -173,24 +173,17 @@ if __name__ == "__main__":
                 print("Temp Offset: " + str(dev.getOffset()) + '°C')
                 sys.exit(0)
         elif opt in ("-a", "--ain"):
-            ain = arg
+            ain = arg.strip()
         elif opt in ("-t", "--toggle"):
             operation = FritzDevice.toggle
         elif opt == "--turnoff":
             operation = FritzDevice.off
         elif opt == "--turnon":
             operation = FritzDevice.on
-        elif opt == "-u":
-            username = arg
-        elif opt == "-p":
-            password = arg
-        elif opt == "-l":
-            link = arg
-    if password and username and link:
-        config = {"username": username,
-                  "password": password,
-                  "url": link}
-        fritz = FritzDect(config)
+        elif opt == "-c":
+            configpath = arg.strip()
+    if configpath:
+        fritz = FritzDect(configpath)
     else:
         fritz = FritzDect()
     if ain and operation:
