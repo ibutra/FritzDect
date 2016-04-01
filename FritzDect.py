@@ -28,6 +28,29 @@ from xml.etree.ElementTree import parse
 import json
 import sys
 import getopt
+import time
+
+cache = {}
+
+
+def cached(interval=60):
+    def decorator(func):
+        def cachefunc(self, *args, **kwargs):
+            try:
+                if time.time() - self.cache[func][0] > interval:
+                    print("new")
+                    self.cache[func] = [time.time(), func(self, *args, **kwargs)]
+                else:
+                    print("cached")
+            except AttributeError:
+                self.cache = {}
+                self.cache[func] = [time.time(), func(self, *args, **kwargs)]
+            except KeyError:
+                self.cache[func] = [time.time(), func(self, *args, **kwargs)]
+            return self.cache[func][1]
+        return cachefunc
+    return decorator
+
 
 class FritzDect(object):
 
@@ -108,19 +131,24 @@ class FritzDevice(object):
         else:
             return self.off()
 
+    @cached(5)
     def getState(self):
         return self.fritzDect.getStringResponse('getswitchstate', self.ain) == '1'
 
+    @cached(5*60)
     def getName(self):
         return self.fritzDect.getStringResponse('getswitchname', self.ain)
 
+    @cached(5)
     def getPower(self):
         mW = float(self.fritzDect.getStringResponse('getswitchpower', self.ain))
         return mW / 1000.0
 
+    @cached(5)
     def getEnergy(self):
         return int(self.fritzDect.getStringResponse('getswitchenergy', self.ain))
 
+    @cached(30)
     def getTemperature(self):
         # return self.fritzDect.getStringResponse('gettemperature', self.ain) # unfortunately this currently does not work
         # Workaround:
@@ -137,6 +165,7 @@ class FritzDevice(object):
                 return temp
         return 0.0
 
+    @cached(5*60)
     def getOffset(self):
         xml = self.fritzDect.getTreeResponse('getdevicelistinfos')
         element = xml.find("./device[@identifier='" + self.ain[:5] + " " + self.ain[5:] + "']")

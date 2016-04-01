@@ -28,10 +28,17 @@ class FritzServer(object):
             pass
         raise cherrypy.HTTPRedirect('/')
 
+    @cherrypy.expose
+    def list(self):
+        return json.dumps([{"ain": device.ain, "name": device.getName(), "state": device.getState(), "temp": device.getTemperature()} for device in self.devicelist])
+
     def update_device_list(self):
         self.devicelist = self.fritz.getDevices()
-        for device in self.devicelist:
-            device.name = device.getName() #hacky but oh well
+
+    @cherrypy.expose
+    def status(self, ain):
+        device = next(dev for dev in self.devicelist if dev.ain == ain)
+        return str(device.getState())
 
 
 if __name__ == "__main__":
