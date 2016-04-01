@@ -22,7 +22,7 @@ class FritzServer(object):
     def switch(self, ain):
         try:
             device = next(dev for dev in self.devicelist if dev.ain == ain)
-            thread = Thread(target=device.toggle)
+            thread = Thread(target=device.toggle)   
             thread.start()
         except ValueError:
             pass
